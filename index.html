@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>REHOBOTH Business</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<style>
+body{font-family:Arial;background:#f5f7fb;margin:0}
+header{background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;padding:25px;text-align:center}
+.card{background:#fff;border-radius:12px;padding:20px;margin:15px;box-shadow:0 4px 10px rgba(0,0,0,.08)}
+.btn{background:#4F46E5;color:#fff;border:0;padding:12px 20px;border-radius:8px;font-weight:bold}
+.btn-pi{background:#F9A825;color:#000}
+input,select{width:100%;padding:11px;border:1px solid #ddd;border-radius:8px;margin:6px 0}
+</style>
+</head>
+<body>
+<header>
+<h1>🌊 REHOBOTH BUSINESS</h1>
+<p>Imana Yaduhaye Ikibanza - Multi-Business + Pi Payments</p>
+<button class="btn btn-pi" onclick="payPi()">💰 Pi Payment</button> <span id="u"></span>
+</header>
+<div class="card">
+<h2>🏪 Business Zanje</h2>
+<div id="biz"></div>
+<button class="btn" onclick="addBiz()">+ Ongeza Business</button>
+</div>
+<div class="card">
+<h2>💵 Kugurisha</h2>
+<select id="bS"></select>
+<input id="item" placeholder="Igicuruzwa">
+<input id="amt" type="number" placeholder="Amafaranga KES">
+<button class="btn" onclick="sell('cash')">Cash</button>
+<button class="btn btn-pi" onclick="sell('pi')">Pi</button>
+<div id="list" style="margin-top:12px"></div>
+</div>
+<div class="card">
+<h2>📊 Total: <span id="tot">0</span> KES | Pi: <span id="totPi">0</span></h2>
+<p>Username: manirumvasimeon88-prog | Embu, Kenya</p>
+<p style="color:green">✅ GitHub Live - Iteye kuruhande rwa Vercel</p>
+</div>
+<script>
+Pi.init({version:"2.0",sandbox:true});
+let biz=JSON.parse(localStorage.getItem('rb_b')||'["Shop Embu","Boutique","Foods"]');
+let sales=JSON.parse(localStorage.getItem('rb_s')||'[]');
+function render(){
+ document.getElementById('biz').innerHTML=biz.map(b=>'• '+b).join('<br>');
+ document.getElementById('bS').innerHTML=biz.map(b=>`<option>${b}</option>`).join('');
+ document.getElementById('list').innerHTML=sales.slice(-10).reverse().map(s=>`${s.b} - ${s.item} : ${s.amt} [${s.m}]`).join('<br>');
+ document.getElementById('tot').innerText=sales.reduce((a,b)=>a+Number(b.amt),0);
+ document.getElementById('totPi').innerText=sales.filter(s=>s.m=='pi').length;
+ localStorage.setItem('rb_b',JSON.stringify(biz));
+ localStorage.setItem('rb_s',JSON.stringify(sales));
+}
+function addBiz(){let n=prompt('Izina rya Business:');if(n){biz.push(n);render()}}
+function sell(m){let b=document.getElementById('bS').value,i=document.getElementById('item').value,a=document.getElementById('amt').value;if(!i||!a)return alert('Uzura');sales.push({b,item:i,amt:a,m});if(m=='pi')payPi(a);render();document.getElementById('item').value='';document.getElementById('amt').value='';}
+function payPi(amt){try{Pi.authenticate(['username','payments'],()=>{}).then(auth=>{document.getElementById('u').innerText='Murakaza '+auth.user.username; Pi.createPayment({amount:Number(amt)||1,memo:"REHOBOTH",metadata:{}},{onReadyForServerApproval:id=>{},onReadyForServerCompletion:(id,txid)=>alert('Pi yakiriwe '+txid),onCancel:()=>{},onError:()=>{}});})}catch(e){}}
+render();
+</script>
+</body>
+</html>
